@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "19505822264",
+    "project_id": "mycbse-improved",
+    "storage_bucket": "mycbse-improved.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:19505822264:android:ffd928cbcc8e9e277504cd",
+        "android_client_info": {
+          "package_name": "com.example.mycbseguideimproved"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "19505822264-8v4g8f5qkp0h0v07uehu3sanv102ksce.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mycbseguideimproved",
+            "certificate_hash": "79c1aff8d99c83b5c5378d49b06063faff9f49e4"
+          }
+        },
+        {
+          "client_id": "19505822264-201eb6iliu79k5dlnlgu2kv4eh0o3q0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGI5zt6YHnuPGi6JDOTtDx_hwr__RkRt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "19505822264-201eb6iliu79k5dlnlgu2kv4eh0o3q0q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

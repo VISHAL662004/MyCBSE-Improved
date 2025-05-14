@@ -36,7 +36,10 @@ private val GradientColors = listOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: CategoryViewModel) {
+fun HomeScreen(
+    viewModel: CategoryViewModel,
+    userName: String?
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(
@@ -53,11 +56,20 @@ fun HomeScreen(viewModel: CategoryViewModel) {
         ) {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "CBSE Guide",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White
-                    )
+                    Column {
+                        Text(
+                            text = "CBSE Guide",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White
+                        )
+                        userName?.let {
+                            Text(
+                                text = "Welcome, $it",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent

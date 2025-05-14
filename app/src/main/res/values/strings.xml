@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MyCBSE Guide Improved</string>
+    <string name="asset_statements" translatable="false">[{
+        \"include\": \"https://YOUR-DOMAIN/.well-known/assetlinks.json\"
+    }]</string>
+    <string name="google_web_client_id">19505822264-201eb6iliu79k5dlnlgu2kv4eh0o3q0q.apps.googleusercontent.com</string>
 </resources>

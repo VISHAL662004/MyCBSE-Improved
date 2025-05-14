@@ -11,7 +11,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mycbseguideimproved.data.api.ApiClient
 import com.example.mycbseguideimproved.data.repository.CategoryRepository
 import com.example.mycbseguideimproved.ui.screen.HomeScreen
+import com.example.mycbseguideimproved.ui.screen.LoginScreen
 import com.example.mycbseguideimproved.ui.theme.MyCBSEGuideImprovedTheme
+import com.example.mycbseguideimproved.ui.viewmodel.AuthViewModel
 import com.example.mycbseguideimproved.ui.viewmodel.CategoryViewModel
 
 class MainActivity : ComponentActivity() {
@@ -27,8 +29,17 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewModel = viewModel { CategoryViewModel(repository) }
-                    HomeScreen(viewModel = viewModel)
+                    val categoryViewModel = viewModel { CategoryViewModel(repository) }
+                    val authViewModel: AuthViewModel = viewModel()
+
+                    if (!authViewModel.isAuthenticated) {
+                        LoginScreen(viewModel = authViewModel)
+                    } else {
+                        HomeScreen(
+                            viewModel = categoryViewModel,
+                            userName = authViewModel.userName
+                        )
+                    }
                 }
             }
         }
