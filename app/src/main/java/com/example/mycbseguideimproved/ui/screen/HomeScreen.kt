@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,10 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
@@ -41,7 +44,8 @@ fun HomeScreen(
     userName: String?
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -50,36 +54,48 @@ fun HomeScreen(
                     colors = GradientColors
                 )
             )
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
             TopAppBar(
                 title = {
-                    Column {
+                    Column(
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
                         Text(
                             text = "CBSE Guide",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = Color.White
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         userName?.let {
                             Text(
                                 text = "Welcome, $it",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = Color.White.copy(alpha = 0.8f)
+                                color = Color.White.copy(alpha = 0.8f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
-                )
+                ),
+                scrollBehavior = scrollBehavior
             )
 
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 8.dp)
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp
+                    )
             ) {
                 when (uiState) {
                     is CategoryUiState.Loading -> {
@@ -158,10 +174,11 @@ fun ErrorMessage(message: String) {
 @Composable
 fun CategoryGrid(categories: List<Category>) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        columns = GridCells.Adaptive(minSize = 150.dp),
+        contentPadding = PaddingValues(bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
         items(categories) { category ->
             CategoryItem(category = category)
@@ -175,24 +192,25 @@ fun CategoryItem(category: Category) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f),
+            .aspectRatio(0.85f),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.9f)
-        )
+        ),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
-                    .size(100.dp)
+                    .size(80.dp)
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
                     .padding(8.dp),
@@ -204,11 +222,11 @@ fun CategoryItem(category: Category) {
                         .crossfade(true)
                         .build(),
                     contentDescription = category.name,
-                    modifier = Modifier.size(80.dp),
+                    modifier = Modifier.size(64.dp),
                     contentScale = ContentScale.Fit,
                     loading = {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(32.dp),
+                            modifier = Modifier.size(24.dp),
                             color = MaterialTheme.colorScheme.primary
                         )
                     },
@@ -228,7 +246,7 @@ fun CategoryItem(category: Category) {
                 )
             }
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             Text(
                 text = category.name,
@@ -236,7 +254,10 @@ fun CategoryItem(category: Category) {
                     fontWeight = FontWeight.Bold
                 ),
                 color = Color.Black.copy(alpha = 0.87f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

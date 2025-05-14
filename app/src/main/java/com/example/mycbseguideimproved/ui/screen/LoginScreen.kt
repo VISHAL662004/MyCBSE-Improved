@@ -10,9 +10,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -33,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
@@ -134,8 +137,7 @@ fun LoginScreen(
                         MaterialTheme.colorScheme.background
                     )
                 )
-            )
-            .padding(16.dp),
+            ),
         contentAlignment = Alignment.Center
     ) {
         if (uiState is AuthUiState.Loading) {
@@ -145,15 +147,88 @@ fun LoginScreen(
             )
         }
 
+        ScrollableContent(
+            isSignUp = isSignUp,
+            email = email,
+            password = password,
+            confirmPassword = confirmPassword,
+            passwordVisible = passwordVisible,
+            confirmPasswordVisible = confirmPasswordVisible,
+            passwordError = passwordError,
+            onEmailChange = { email = it },
+            onPasswordChange = { 
+                password = it
+                if (isSignUp) {
+                    passwordError = validatePassword(it)
+                }
+            },
+            onConfirmPasswordChange = { confirmPassword = it },
+            onPasswordVisibilityChange = { passwordVisible = it },
+            onConfirmPasswordVisibilityChange = { confirmPasswordVisible = it },
+            onSignInUpClick = {
+                if (isSignUp) {
+                    if (password != confirmPassword) {
+                        Toast.makeText(context, "Passwords don't match", Toast.LENGTH_SHORT).show()
+                        return@ScrollableContent
+                    }
+                    
+                    if (passwordError != null) {
+                        Toast.makeText(context, passwordError, Toast.LENGTH_SHORT).show()
+                        return@ScrollableContent
+                    }
+                    
+                    viewModel.signUpWithEmailPassword(email, password)
+                } else {
+                    viewModel.signInWithEmailPassword(email, password)
+                }
+            },
+            onToggleAuthMode = { 
+                isSignUp = !isSignUp
+                passwordError = null
+                confirmPassword = ""
+            },
+            onGoogleSignInClick = {
+                val signInIntent = googleSignInClient.signInIntent
+                googleSignInLauncher.launch(signInIntent)
+            }
+        )
+    }
+}
+
+@Composable
+private fun ScrollableContent(
+    isSignUp: Boolean,
+    email: String,
+    password: String,
+    confirmPassword: String,
+    passwordVisible: Boolean,
+    confirmPasswordVisible: Boolean,
+    passwordError: String?,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onPasswordVisibilityChange: (Boolean) -> Unit,
+    onConfirmPasswordVisibilityChange: (Boolean) -> Unit,
+    onSignInUpClick: () -> Unit,
+    onToggleAuthMode: () -> Unit,
+    onGoogleSignInClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(scrollState)
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(24.dp)
-                .padding(bottom = 8.dp)
+                .padding(top = 24.dp, bottom = 24.dp, start = 20.dp, end = 20.dp)
         ) {
             // App Logo and Title
             Box(
@@ -185,12 +260,12 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Email Field
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = onEmailChange,
                 label = { Text("Email Address") },
                 leadingIcon = { 
                     Icon(
@@ -215,12 +290,7 @@ fun LoginScreen(
             // Password Field
             OutlinedTextField(
                 value = password,
-                onValueChange = { 
-                    password = it
-                    if (isSignUp) {
-                        passwordError = validatePassword(it)
-                    }
-                },
+                onValueChange = onPasswordChange,
                 label = { Text("Password") },
                 leadingIcon = { 
                     Icon(
@@ -230,7 +300,7 @@ fun LoginScreen(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    IconButton(onClick = { onPasswordVisibilityChange(!passwordVisible) }) {
                         Icon(
                             if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
@@ -248,8 +318,11 @@ fun LoginScreen(
                 supportingText = {
                     if (passwordError != null) {
                         Text(
-                            text = passwordError!!,
-                            color = MaterialTheme.colorScheme.error
+                            text = passwordError,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 },
@@ -266,7 +339,7 @@ fun LoginScreen(
             AnimatedVisibility(visible = isSignUp) {
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = onConfirmPasswordChange,
                     label = { Text("Confirm Password") },
                     leadingIcon = { 
                         Icon(
@@ -276,7 +349,7 @@ fun LoginScreen(
                         )
                     },
                     trailingIcon = {
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        IconButton(onClick = { onConfirmPasswordVisibilityChange(!confirmPasswordVisible) }) {
                             Icon(
                                 if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
@@ -295,7 +368,10 @@ fun LoginScreen(
                         if (isSignUp && confirmPassword.isNotEmpty() && confirmPassword != password) {
                             Text(
                                 text = "Passwords don't match",
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     },
@@ -313,23 +389,7 @@ fun LoginScreen(
 
             // Sign In/Sign Up Button
             Button(
-                onClick = {
-                    if (isSignUp) {
-                        if (password != confirmPassword) {
-                            Toast.makeText(context, "Passwords don't match", Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-                        
-                        if (passwordError != null) {
-                            Toast.makeText(context, passwordError, Toast.LENGTH_SHORT).show()
-                            return@Button
-                        }
-                        
-                        viewModel.signUpWithEmailPassword(email, password)
-                    } else {
-                        viewModel.signInWithEmailPassword(email, password)
-                    }
-                },
+                onClick = onSignInUpClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -346,11 +406,7 @@ fun LoginScreen(
 
             // Toggle between Sign In and Sign Up
             TextButton(
-                onClick = { 
-                    isSignUp = !isSignUp
-                    passwordError = null
-                    confirmPassword = ""
-                }
+                onClick = onToggleAuthMode
             ) {
                 Text(
                     text = if (isSignUp) "Already have an account? Sign In" 
@@ -367,10 +423,7 @@ fun LoginScreen(
 
             // Google Sign In Button
             OutlinedButton(
-                onClick = {
-                    val signInIntent = googleSignInClient.signInIntent
-                    googleSignInLauncher.launch(signInIntent)
-                },
+                onClick = onGoogleSignInClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
