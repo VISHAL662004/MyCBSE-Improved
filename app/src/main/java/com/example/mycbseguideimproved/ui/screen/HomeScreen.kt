@@ -37,7 +37,7 @@ private val GradientColors = listOf(
     Color(0xFF01579B)  // Deep Cyan
 )
 
-//This is comment to check something
+//This is just a comment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
