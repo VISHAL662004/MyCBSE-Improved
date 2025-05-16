@@ -43,7 +43,8 @@ private val GradientColors = listOf(
 @Composable
 fun HomeScreen(
     viewModel: CategoryViewModel,
-    userName: String?
+    userName: String?,
+    onCategoryClick: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -104,7 +105,10 @@ fun HomeScreen(
                         LoadingAnimation()
                     }
                     is CategoryUiState.Success -> {
-                        ContentWithAnimation(categories = (uiState as CategoryUiState.Success).categories)
+                        ContentWithAnimation(
+                            categories = (uiState as CategoryUiState.Success).categories,
+                            onCategoryClick = onCategoryClick
+                        )
                     }
                     is CategoryUiState.Error -> {
                         ErrorMessage(message = (uiState as CategoryUiState.Error).message)
@@ -116,12 +120,18 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ContentWithAnimation(categories: List<Category>) {
+private fun ContentWithAnimation(
+    categories: List<Category>,
+    onCategoryClick: (Int) -> Unit
+) {
     AnimatedVisibility(
         visible = true,
         enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
     ) {
-        CategoryGrid(categories = categories)
+        CategoryGrid(
+            categories = categories,
+            onCategoryClick = onCategoryClick
+        )
     }
 }
 
@@ -174,7 +184,10 @@ fun ErrorMessage(message: String) {
 }
 
 @Composable
-fun CategoryGrid(categories: List<Category>) {
+fun CategoryGrid(
+    categories: List<Category>,
+    onCategoryClick: (Int) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(bottom = 16.dp),
@@ -183,14 +196,20 @@ fun CategoryGrid(categories: List<Category>) {
         modifier = Modifier.fillMaxWidth()
     ) {
         items(categories) { category ->
-            CategoryItem(category = category)
+            CategoryItem(
+                category = category,
+                onClick = { onCategoryClick(category.id) }
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryItem(category: Category) {
+fun CategoryItem(
+    category: Category,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,7 +220,8 @@ fun CategoryItem(category: Category) {
         colors = CardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.9f)
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
