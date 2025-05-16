@@ -52,8 +52,11 @@ class MainActivity : ComponentActivity() {
                                 HomeScreen(
                                     viewModel = categoryViewModel,
                                     userName = authViewModel.userName,
-                                    onCategoryClick = { categoryId ->
-                                        currentScreen = Screen.Content(contentId = 28297) // Using the specific ID provided
+                                    onCategoryClick = { categoryId, categoryName ->
+                                        // Only open ContentScreen for CBSE category (checking by name)
+                                        if (categoryName.contains("CBSE", ignoreCase = true)) {
+                                            currentScreen = Screen.Content(contentId = 28297)
+                                        }
                                     }
                                 )
                             }

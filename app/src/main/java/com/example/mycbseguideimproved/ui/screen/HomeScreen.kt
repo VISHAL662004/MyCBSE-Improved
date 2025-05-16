@@ -44,7 +44,7 @@ private val GradientColors = listOf(
 fun HomeScreen(
     viewModel: CategoryViewModel,
     userName: String?,
-    onCategoryClick: (Int) -> Unit
+    onCategoryClick: (Int, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -122,7 +122,7 @@ fun HomeScreen(
 @Composable
 private fun ContentWithAnimation(
     categories: List<Category>,
-    onCategoryClick: (Int) -> Unit
+    onCategoryClick: (Int, String) -> Unit
 ) {
     AnimatedVisibility(
         visible = true,
@@ -186,7 +186,7 @@ fun ErrorMessage(message: String) {
 @Composable
 fun CategoryGrid(
     categories: List<Category>,
-    onCategoryClick: (Int) -> Unit
+    onCategoryClick: (Int, String) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
@@ -198,7 +198,7 @@ fun CategoryGrid(
         items(categories) { category ->
             CategoryItem(
                 category = category,
-                onClick = { onCategoryClick(category.id) }
+                onClick = { onCategoryClick(category.id, category.name) }
             )
         }
     }
